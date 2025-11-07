@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artelligence - Art Festival 2K25</title>
+<link rel="icon" href="https://ik.imagekit.io/shaz/Prompt%20Generate%20Inspire.jpg" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Montserrat',sans-serif;}
+body{background:linear-gradient(135deg,#1a0033,#001a33,#000814);color:white;min-height:100vh;overflow:hidden;}
+/* Loader */
+.loader{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  background:linear-gradient(135deg,#1a0033,#001a33,#000814);
+  z-index:10000;animation:fadeOut 1s ease 5s forwards;
+}
+@keyframes fadeOut{to{opacity:0;visibility:hidden;}}
+.loader h1{
+  font-size:3rem;
+  background:linear-gradient(90deg,#ff6b6b,#4ecdc4,#45b7d1);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:10px;
+}
+.loader h2{font-size:1.6rem;color:#4ecdc4;margin-bottom:15px;}
+.dots{display:flex;gap:6px;}
+.dot{width:10px;height:10px;border-radius:50%;background:#4ecdc4;opacity:0;animation:blink 3s infinite;}
+.dot:nth-child(1){animation-delay:0s;}
+.dot:nth-child(2){animation-delay:0.3s;}
+.dot:nth-child(3){animation-delay:0.6s;}
+@keyframes blink{0%,100%{opacity:0;}50%{opacity:1;}}
+/* Navbar */
+.top-nav{
+  position:fixed;top:0;left:0;width:100%;
+  background:rgba(10,10,20,0.95);
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 20px;z-index:1000;border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.top-nav-logo{
+  font-size:1.3rem;font-weight:700;
+  background:linear-gradient(90deg,#ff6b6b,#4ecdc4,#45b7d1);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.nav-right{display:flex;gap:10px;}
+.nav-btn{
+  background:rgba(78,205,196,0.2);color:white;border:none;
+  padding:8px 14px;border-radius:6px;cursor:pointer;transition:0.3s;
+}
+.nav-btn:hover{background:#4ecdc4;color:#000;}
+.user-info{font-size:0.9rem;color:#4ecdc4;margin-left:10px;}
+/* Sign-in Page */
+.signin-page{
+  display:none;flex-direction:column;justify-content:center;align-items:center;
+  height:100vh;text-align:center;
+}
+.signin-page h1{
+  background:linear-gradient(90deg,#ff6b6b,#4ecdc4,#45b7d1);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  font-size:2.5rem;margin-bottom:10px;
+}
+.signin-page p{color:#4ecdc4;margin-bottom:30px;}
+.signin-btn{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,0.1);
+  color:white;border:none;padding:12px 20px;margin:8px;
+  border-radius:8px;cursor:pointer;font-size:1rem;transition:0.3s;
+}
+.signin-btn:hover{background:#4ecdc4;color:#000;}
+.signin-btn i{font-size:1.2rem;}
+.back-btn{margin-top:20px;background:none;border:none;color:#4ecdc4;cursor:pointer;font-size:0.9rem;}
+/* Main */
+#mainSite{text-align:center;margin-top:80px;padding:20px;}
+#mainSite h1{color:#4ecdc4;}
+#mainSite p{opacity:0.8;}
+</style>
+</head>
+
+<body>
+<!-- Loader -->
+<div class="loader">
+  <h1>Artelligence</h1>
+  <h2>Art Festival 2K25</h2>
+  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+</div>
+
+<!-- Navbar -->
+<div class="top-nav" id="navbar" style="display:none;">
+  <div class="top-nav-logo">Artelligence</div>
+  <div class="nav-right">
+    <div id="userInfo" class="user-info"></div>
+    <button class="nav-btn" id="signInBtn"><i class="fas fa-user"></i> Sign In</button>
+    <button class="nav-btn" id="logoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+</div>
+
+<!-- Sign In Page -->
+<div class="signin-page" id="signinPage">
+  <h1>Sign In</h1>
+  <p>Access Artelligence 2K25 with your account</p>
+  <button class="signin-btn" id="googleSignIn"><i class="fab fa-google"></i> Sign in with Google</button>
+  <button class="signin-btn" id="appleSignIn"><i class="fab fa-apple"></i> Sign in with Apple</button>
+  <button class="signin-btn" id="emailSignIn"><i class="fa fa-envelope"></i> Sign in with Email</button>
+  <button class="back-btn" id="backBtn">← Back to Home</button>
+</div>
+
+<!-- Main Site -->
+<div id="mainSite" style="display:none;">
+  <h1>Welcome to Artelligence 2K25</h1>
+  <p>Explore, create, and celebrate the Art Festival 2K25.</p>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+
+<script>
+// ✅ Your Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAcE6WzVHDqyv0sUMK_HCru3pzSlPSmbt0",
+  authDomain: "site-8e68a.firebaseapp.com",
+  projectId: "site-8e68a",
+  storageBucket: "site-8e68a.firebasestorage.app",
+  messagingSenderId: "802480520756",
+  appId: "1:802480520756:web:6c7273fae3fad28af21461",
+  measurementId: "G-KR30H82NVS"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// Loader transition
+setTimeout(() => {
+  document.querySelector(".loader").style.display = "none";
+  document.getElementById("navbar").style.display = "flex";
+  document.getElementById("mainSite").style.display = "block";
+}, 6000);
+
+// Page switching
+document.getElementById("signInBtn").addEventListener("click", () => {
+  document.getElementById("mainSite").style.display = "none";
+  document.getElementById("signinPage").style.display = "flex";
+});
+document.getElementById("backBtn").addEventListener("click", () => {
+  document.getElementById("signinPage").style.display = "none";
+  document.getElementById("mainSite").style.display = "block";
+});
+
+// Google Sign-In
+document.getElementById("googleSignIn").addEventListener("click", () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(alert);
+});
+
+// Apple Sign-In
+document.getElementById("appleSignIn").addEventListener("click", () => {
+  const provider = new firebase.auth.OAuthProvider("apple.com");
+  auth.signInWithPopup(provider).catch(alert);
+});
+
+// Email Sign-In
+document.getElementById("emailSignIn").addEventListener("click", async () => {
+  const email = prompt("Enter your email:");
+  const password = prompt("Enter your password:");
+  if (email && password) {
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+    } catch (err) {
+      if (err.code === "auth/user-not-found") {
+        if (confirm("User not found. Create new account?")) {
+          await auth.createUserWithEmailAndPassword(email, password);
+        }
+      } else alert(err.message);
+    }
+  }
+});
+
+// Logout
+document.getElementById("logoutBtn").addEventListener("click", () => auth.signOut());
+
+// Auth state changes
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById("userInfo").textContent = `Signed in as ${user.displayName || user.email}`;
+    document.getElementById("logoutBtn").style.display = "inline-block";
+    document.getElementById("signInBtn").style.display = "none";
+    document.getElementById("signinPage").style.display = "none";
+    document.getElementById("mainSite").style.display = "block";
+  } else {
+    document.getElementById("userInfo").textContent = "";
+    document.getElementById("logoutBtn").style.display = "none";
+    document.getElementById("signInBtn").style.display = "inline-block";
+  }
+});
+</script>
+</body>
+</html>
